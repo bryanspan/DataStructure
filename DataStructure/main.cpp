@@ -63,6 +63,10 @@ ListNode* FindKthToTail(ListNode* , unsigned int);
 
 //15、反转链表
 ListNode* ReverseList(ListNode* );
+
+//16、合并两个排序的链表
+ListNode* Merge(ListNode* , ListNode* );
+
 int main()
 {
 	/*1-二维数组查找*/
@@ -597,8 +601,93 @@ ListNode* FindKthToTail(ListNode* pListHead, unsigned int k)
 /*15、反转链表
 题目描述
 输入一个链表，反转链表后，输出链表的所有元素。
+思路：
+从第2个节点到第N个节点，依次逐节点插入到第1个节点(head节点)之后，最后将第一个节点挪到新表的表尾。
 */
 ListNode* ReverseList(ListNode* pHead)
 {
-http://blog.csdn.net/feliciafay/article/details/6841115
+	ListNode* hNext;
+	ListNode* temp;
+	if (pHead == NULL || pHead->next == NULL)
+		return pHead;
+	hNext = pHead->next;
+	while (hNext->next != NULL)
+	{
+		temp = hNext->next;
+		hNext->next = temp->next;
+		temp->next = pHead->next;
+		pHead->next = temp;
+	}
+
+	hNext->next = pHead;
+	pHead = hNext->next->next;
+	hNext->next->next = NULL;
+	return pHead;
+}
+/*16、合并两个排序的链表
+题目描述
+输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则
+
+*/
+ListNode* Merge(ListNode* pHead1, ListNode* pHead2)
+{
+	//有链表为空
+	if (pHead1 == NULL)
+		return pHead2;
+	if (pHead2 == NULL)
+		return pHead1;
+
+	//递归版本 
+	if (pHead1->val <= pHead2->val)
+	{
+		pHead1->next = Merge(pHead1->next, pHead2);
+		return pHead1;
+	}
+	else
+	{
+		pHead2->next = Merge(pHead1, pHead2->next);
+		return pHead2;
+	}
+
+
+	//非递归版本
+	//构造新链表的头结点和‘游标’ 比较两个链表中的数据 依次插入新的链表中
+	ListNode* mergeHead = NULL;
+	ListNode* current = NULL;
+	while (pHead1 != NULL && pHead2 != NULL)
+	{
+		if (pHead1->val <= pHead2->val)
+		{
+			if (mergeHead == NULL)
+				mergeHead = current = pHead1;
+			else
+			{
+				current->next = pHead1;
+				current = current->next;
+			}
+			pHead1 = pHead1->next;
+
+		}
+		else
+		{
+			if (mergeHead == NULL)
+				mergeHead = current = pHead2;
+			else
+			{
+				current->next = pHead2;
+				current = current->next;
+			}
+			pHead2 = pHead2->next;
+		}
+
+		//某一链表已全部插入到了新链表中
+		if (pHead1 == NULL)
+			current->next = pHead2;
+		else
+			current->next = pHead1;
+
+		return mergeHead;
+
+	}
+
 }
