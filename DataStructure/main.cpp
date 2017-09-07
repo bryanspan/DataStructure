@@ -4,6 +4,7 @@
 #include <vector>
 #include <stack>
 #include<math.h>
+#include<queue>;
 using namespace std;
 
 //1、二维数组中的查找
@@ -67,6 +68,23 @@ ListNode* ReverseList(ListNode* );
 //16、合并两个排序的链表
 ListNode* Merge(ListNode* , ListNode* );
 
+//17、树的子结构
+bool HasSubtree(TreeNode*, TreeNode*);
+
+//18、二叉树的镜像
+void Mirror(TreeNode*);
+
+//19、顺时针打印矩阵
+vector<int> printMatrix(vector<vector<int> >);
+
+//20、包含min函数的栈
+
+//21、栈的压入、弹出序列
+bool IsPopOrder(vector<int> , vector<int> );
+
+//22、从上往下打印二叉树
+vector<int> PrintFromTopToBottom(TreeNode*);
+
 int main()
 {
 	/*1-二维数组查找*/
@@ -104,7 +122,19 @@ int main()
 
 
 	/*11 二进制中1的个数*/
-	cout<<NumberOf1(5);
+	//cout<<NumberOf1(5);
+
+	/*19 顺时针输出矩阵*/
+	vector<int> res = printMatrix({ {1}, { 8 }, { 12 }, {  16 } });
+	for (int i = 0; i < res.size(); i++)
+	{
+		cout << res[i] << " ";
+	}
+	res.pop_back();
+	for (int i = 0; i < res.size(); i++)
+	{
+		cout << res[i] << " ";
+	}
 }
 
 
@@ -638,16 +668,16 @@ ListNode* Merge(ListNode* pHead1, ListNode* pHead2)
 		return pHead1;
 
 	//递归版本 
-	if (pHead1->val <= pHead2->val)
-	{
-		pHead1->next = Merge(pHead1->next, pHead2);
-		return pHead1;
-	}
-	else
-	{
-		pHead2->next = Merge(pHead1, pHead2->next);
-		return pHead2;
-	}
+	//if (pHead1->val <= pHead2->val)
+	//{
+	//	pHead1->next = Merge(pHead1->next, pHead2);
+	//	return pHead1;
+	//}
+	//else
+	//{
+	//	pHead2->next = Merge(pHead1, pHead2->next);
+	//	return pHead2;
+	//}
 
 
 	//非递归版本
@@ -690,4 +720,182 @@ ListNode* Merge(ListNode* pHead1, ListNode* pHead2)
 
 	}
 
+}
+
+/*17、树的子结构
+题目描述
+输入两棵二叉树A，B，判断B是不是A的子结构。（ps：我们约定空树不是任意一个树的子结构）;
+*/
+bool isSubtree(TreeNode* pRootA, TreeNode* pRootB)
+{
+	if (pRootB == NULL)   //B树已经遍历完
+		return true;
+	if (pRootA == NULL)   //A树先遍历完
+		return false;
+	if (pRootB->val == pRootA->val)  //根节点值相等
+	{
+		return isSubtree(pRootA->left, pRootB->left) && 
+			isSubtree(pRootA->right, pRootB->right);
+	}
+	else
+		return false;
+
+}
+
+bool HasSubtree(TreeNode* pRootA, TreeNode* pRootB)
+{
+	//空树没有子树 空树也不是任何树的子树
+	if (pRootA == NULL || pRootB == NULL)
+		return false;
+
+	//如果当前树的根节点不相等 判断其左子树（如果也没有找到） 最后判断右子树
+	return isSubtree(pRootA, pRootB) || HasSubtree(pRootA->left, pRootB) || HasSubtree(pRootA->right, pRootB);
+}
+
+/*18、二叉树的镜像
+题目描述：
+操作给定的二叉树，将其变换为源二叉树的镜像。
+思路：
+递归去镜像每一个节点
+*/
+void Mirror(TreeNode *pRoot)
+{
+	TreeNode* temp = NULL;
+	if (pRoot->left != NULL || pRoot->right != NULL)
+	{
+		temp = pRoot->right;
+		pRoot->right = pRoot->left;
+		pRoot->left = temp;
+		Mirror(pRoot->left);
+		Mirror(pRoot->right);
+	}
+}
+
+/*19、顺时针打印矩阵
+题目描述
+输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字，
+例如，如果输入如下矩阵： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 
+则依次打印出数字1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10.
+思路：使用左上和右下来定位一个矩阵，一次结束之后相当于把原来的矩阵
+最外一层输出 修改定位矩阵左上和右下的值 继续输出
+
+*/
+vector<int> printMatrix(vector<vector<int> > matrix)
+{
+	int row = matrix.size();
+	int col = matrix[0].size();
+	vector<int> res;
+
+	if (row == 0 || col == 0)
+		return res;
+
+	int left = 0, top = 0, right = col - 1, bottom = row - 1;
+	while (left <= right&&top <= bottom)
+	{
+		//→
+		for (int i = left; i <= right; i++)
+			res.push_back(matrix[top][i]);
+		//↓
+		for (int i = top + 1; i <= bottom; i++)
+			res.push_back(matrix[i][right]);
+		//←
+		if (top != bottom)
+			for (int i = right - 1; i >= left; i--)
+				res.push_back(matrix[bottom][i]);
+		//↑
+		if (left != right)
+			for (int i = bottom - 1; i > top; i--)
+				res.push_back(matrix[i][left]);
+		
+		//缩小包围圈
+		left++, top++, right--, bottom--;
+	}
+	return res;
+}
+/*20、包含min函数的栈
+题目描述
+定义栈的数据结构，请在该类型中实现一个能够得到栈最小元素的min函数
+*/
+vector<int> mystack;
+void tpush(int value) {
+	mystack.push_back(value);
+}
+void tpop() {
+	if (mystack.size() != 0)
+		mystack.pop_back();
+}
+int ttop() {
+	if (mystack.size() != 0)
+		return mystack[mystack.size() - 1];
+	else
+		return -1;
+}
+int tmin() {
+
+	if (mystack.size() == 0)
+		return -1;
+	else
+	{
+		int temp = mystack[0];
+		for (int i = 1; i<mystack.size(); i++)
+		{
+			if (temp>mystack[i])
+				temp = mystack[i];
+		}
+		return temp;
+	}
+
+}
+/*21、栈的压入、弹出序列
+题目描述
+输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。
+假设压入栈的所有数字均不相等。
+例如序列1,2,3,4,5是某栈的压入顺序，序列4，5,3,2,1是该压栈序列对应的一个弹出序列，
+但4,3,5,1,2就不可能是该压栈序列的弹出序列。（注意：这两个序列的长度是相等的）
+思路：使用一个辅助栈，将压栈序列的第一个元素压入辅助栈，辅助栈的top元素和出栈序列比较
+如果不同则继续压栈，如果相同则出栈，比较新的辅助栈栈顶元素与出栈序列的下一个元素是否相等，
+*/
+bool IsPopOrder(vector<int> pushV, vector<int> popV)
+{
+	//非法输入
+	if ((pushV.size() != popV.size()) || pushV.size()==0||popV.size()==0)
+		return false;
+	//辅助栈
+	vector<int> mystack;
+	for (int i = 0,j = 0; i < pushV.size();i++)
+	{
+		//将pushV中的元素压入辅助栈
+		mystack.push_back(pushV[i]);
+		//辅助栈顶元素与出栈序列比较相同 辅助栈出栈并且出栈序列向后移位 如果不同继续入辅助栈
+		while (j < popV.size() && mystack.back() == popV[j])
+		{
+			mystack.pop_back();
+			j++;
+		}
+	}
+	//辅助栈的元素没有pop_back完 就说明不是正确的出栈序列
+	return mystack.empty();
+}
+
+/*22、从上往下打印二叉树
+题目描述
+从上往下打印出二叉树的每个节点，同层节点从左至右打印。
+思路：
+*/
+vector<int> PrintFromTopToBottom(TreeNode* root)
+{
+	vector<int> res;
+	queue<TreeNode*> node;
+	node.push(root);
+	while (!node.empty() && node.front() != NULL)
+	{
+		res.push_back(node.front()->val);
+		if (node.front()->left != NULL)
+			node.push(node.front()->left);
+		if (node.front()->right != NULL)
+			node.push(node.front()->right);
+
+		node.pop();
+	}
+	return res;
 }
