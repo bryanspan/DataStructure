@@ -4,7 +4,10 @@
 #include <vector>
 #include <stack>
 #include<math.h>
-#include<queue>;
+#include<queue>
+#include<assert.h>
+#include<algorithm> 
+#include<numeric> 
 using namespace std;
 
 //1、二维数组中的查找
@@ -84,7 +87,22 @@ bool IsPopOrder(vector<int> , vector<int> );
 
 //22、从上往下打印二叉树
 vector<int> PrintFromTopToBottom(TreeNode*);
+long location(unsigned long num);
 
+//京东笔试
+//疯狂序列
+long long CrazySequence1(long long n);
+long long CrazySequence2(long long n);
+//神奇数
+bool isMagic(int sum, const vector<int> &split);
+
+//华为机试
+//1、最后一个单词的长度
+int lengthOfLastWord(const string &a);
+//2、字符串中某一字符的个数
+int numOfString();
+//3、随机数 去重排序
+int randomNum();
 int main()
 {
 	/*1-二维数组查找*/
@@ -125,18 +143,175 @@ int main()
 	//cout<<NumberOf1(5);
 
 	/*19 顺时针输出矩阵*/
-	vector<int> res = printMatrix({ {1}, { 8 }, { 12 }, {  16 } });
-	for (int i = 0; i < res.size(); i++)
+	//vector<int> res = printMatrix({ {1}, { 8 }, { 12 }, {  16 } });
+	//for (int i = 0; i < res.size(); i++)
+	//{
+	//	cout << res[i] << " ";
+	//}
+	//res.pop_back();
+	//for (int i = 0; i < res.size(); i++)
+	//{
+	//	cout << res[i] << " ";
+	//}
+
+	//不用sizeof运算符计算某一类型的大小
+	//double a[2];
+	//printf("%d\n", (char)&a[1] - (char)&a[0]);
+	//cout << sizeof(long long)
+
+
+
+	/*int numOfCity = 0;
+	int numOfMove = 0;
+	vector<int> link;
+	int linkOfCity;
+	cin >> numOfCity >> numOfMove;
+	while (cin >> linkOfCity)
 	{
-		cout << res[i] << " ";
+		link.push_back(linkOfCity);
 	}
-	res.pop_back();
-	for (int i = 0; i < res.size(); i++)
+	if ((numOfCity >= 2 && numOfCity <= 50) && (numOfMove >= 1 && numOfMove <= 100))
 	{
-		cout << res[i] << " ";
-	}
+		if (link.size()-1 <= numOfCity - 2)
+		{
+			int i = 0,count=0;
+			while (i<numOfMove)
+			{
+				if (i <= link.size())
+					count++;
+				i++;
+			}
+			cout << count+1;
+		}
+
+	}*/
+	randomNum();
+
 }
 
+//华为机试
+/*
+1、字符串最后一个单词长度
+输入 hello world
+输出 5
+*/
+int lengthOfLastWord()
+{
+	string a;
+	getline(cin, a);
+
+	int loc = a.find_last_of(" ");
+	return (a.substr(loc + 1, a.length())).length();
+}
+/* 2、字符串中某一字符的个数
+*/
+int numOfString()
+{
+	string fullStr, single;
+	cin >> fullStr >> single;
+	int count = 0;
+	for (int i = 0; i<fullStr.length(); i++)
+	{
+		if (tolower(fullStr[i]) == tolower(single[0]))
+			count++;
+	}
+	cout << count << endl;
+
+	return 0;
+}
+/*3、随机数排序去重*/
+int randomNum()
+{
+	int num;
+	cin >> num;
+	int count = 1;
+	int randomNum;
+	vector<int> randomVec;
+	while (cin >> randomNum && count<num)
+	{
+		assert(randomNum >= 1 && randomNum <= 1000);
+		randomVec.push_back(randomNum);
+		count++;
+	}
+	sort(randomVec.begin(), randomVec.end());
+	randomVec.erase(unique(randomVec.begin(), randomVec.end()), randomVec.end());
+	for (int i = 0; i<randomVec.size(); i++)
+		cout << randomVec[i] << endl;
+	return 0;
+}
+
+/*	
+京东C++笔试
+1、疯狂序列
+题目描述：
+	1 2 2 3 3 3 4 4 4 4 5 5 5 5 5 ····
+	输入一个数字 输出此位值上的值 例如input = 4,output=3;input = 9,output=4;···
+思路：
+	#1、位置L上的数字为m 则L的范围在[n(n-1)/2+1,n(n+1)/2] 
+		解出n的值 向下取整 返回
+	#2、二分查找 n取值范围为[0,pow(10^18)];
+		找出满足 n(n-1)/2+1<=L<=n(n+1)/2 的n
+*/
+long long CrazySequence1(long long n)
+{
+	assert(n > 0);
+	//return (floor)((1 + sqrt(8 * n - 7)) / 2);
+	return (floor)(sqrt(1 + 8 * n) / 2);
+}
+
+long long CrazySequence2(long long n)
+{
+	long long l = 1, r = 1000000000000000000LL,mid;
+	cout << r << endl;
+	while (l < r)
+	{
+		mid = (l + r) / 2;
+		//if (mid*(mid + 1) / 2>=n
+		if (mid >= (sqrt(1+8*n)-1)/2)
+			r = mid;
+		else
+			l = mid+1;
+	}
+	return l;
+
+}
+/*
+京东c++笔试
+2、神奇数
+问题描述：
+	一个数的各位可以分解成两部分，并且这两部分的和相等。
+	例如[1,99]之间的神奇数有11,22,33,44,55,66,77,88,99，
+	[900,999]之间的神奇数有936,963,918,981,927,972,945,954,909,990
+	要求输入一个范围l,r 输出范围内的神奇数的个数
+思路：
+	先把整数拆成数组，数组元素求和，判断是否存在数组的子集元素之和为原数组的一半
+*/
+bool isMagic(int sum, const vector<int> &split)
+{
+	int len = split.size();
+	if (sum == 0 && len > 0)//说明已经找到一个分组，使得和为half  
+		return true;
+	if (sum < 0)//这种组合找不到了  
+		return false;
+	bool result = false;
+	for (int i = 0; i < len; ++i){
+		vector<int> numTmp = split;
+		vector<int>::iterator it = numTmp.begin() + i;
+		numTmp.erase(it);
+		result = result || isMagic(sum - split[i], numTmp);//用||，是因为底层递归函数返回找到，则找到了  
+		if (result)
+			break;
+	}
+	return result;
+}
+
+/*
+网易C++笔试
+1、游历魔法王国
+2、序列重排
+3、射击游戏
+占坑
+*/
 
 
 //  1、题目描述 二维数组中的查找
