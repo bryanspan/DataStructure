@@ -96,6 +96,9 @@ long long CrazySequence2(long long n);
 //神奇数
 bool isMagic(int sum, const vector<int> &split);
 
+//爱奇艺
+int deepString();
+void ssrAB();
 //华为机试
 //1、最后一个单词的长度
 int lengthOfLastWord(const string &a);
@@ -103,6 +106,8 @@ int lengthOfLastWord(const string &a);
 int numOfString();
 //3、随机数 去重排序
 int randomNum();
+
+
 int main()
 {
 	/*1-二维数组查找*/
@@ -185,8 +190,81 @@ int main()
 		}
 
 	}*/
-	randomNum();
+	//randomNum();
+	ssrAB();
 
+}
+
+//爱奇艺
+//遇到左括号就压栈 右括号就出栈
+int deepString()
+{
+	string src;
+	cin >> src;
+	int srcLength = src.length();
+	int count = 0;
+	if (srcLength == 0)
+		return 0;
+	if (srcLength % 2 != 0)
+		return -1;
+	stack<char>vc;
+	for (int i = 0; i < srcLength; i++)
+	{
+		if (src[i]=='(')
+			vc.push(src[i]);
+		else if (!vc.empty() && src[i] == ')')
+		{
+			vc.pop();
+		}
+		else
+			return 0;
+	}
+	//序列合法
+	int deep = 0;
+	if (vc.size() == 0)
+	{
+		char c = src[0];
+
+		for (int j = 0; j< src.length(); j++)
+		{
+			if (c == src[j])
+				deep++;
+			else
+			{
+				c = src[j + 1];
+				deep = 0;
+			}
+		}
+	}
+	return deep+1;
+
+
+}
+//
+void ssrAB()
+{
+	int n, m;
+	cin >> n >> m;
+	float result = .0;
+	int count = 0;
+	int temp = 0;
+	if (m > n)
+	{
+		temp = n;
+		n = m;
+		m = temp;
+	}
+
+	for (int i = 1; i <= m; i++)
+	{
+		for (int j =1; j <= n; j++)
+		{
+			result = sqrt(i*j);
+			if (result - int(result) == 0)
+				count++;
+		}
+	}
+	cout << count << endl;
 }
 
 //华为机试
