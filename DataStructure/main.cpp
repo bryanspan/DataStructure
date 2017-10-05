@@ -89,6 +89,22 @@ bool IsPopOrder(vector<int> , vector<int> );
 vector<int> PrintFromTopToBottom(TreeNode*);
 long location(unsigned long num);
 
+//23、二叉搜索树的后序遍历序列
+bool judge(vector<int> &a, int l, int r);
+bool VerifySequenceOfBST(vector<int> a);
+
+//24、二叉树中和为某一值的路径
+vector<vector<int> > FindPath(TreeNode* root, int exceptNumber);
+
+//25、复杂链表的复制
+struct RandomListNode
+{
+	int label;
+	struct RandomListNode *next, *random;
+	RandomListNode(int x) :
+		label(x), next(NULL), random(NULL){}
+};
+RandomListNode* Clone(RandomListNode& pHead);
 //京东笔试
 //疯狂序列
 long long CrazySequence1(long long n);
@@ -106,7 +122,8 @@ int lengthOfLastWord(const string &a);
 int numOfString();
 //3、随机数 去重排序
 int randomNum();
-
+//4、明明的随机数
+void randomMingming();
 
 int main()
 {
@@ -191,7 +208,10 @@ int main()
 
 	}*/
 	//randomNum();
-	ssrAB();
+	//randomMingming();
+	vector<int> a = { 2, 4, 3, 7, 6, 5, 9, 11, 12, 10, 8 };
+	vector<int> b = { 6, 9, 8, 5 };
+	VerifySequenceOfBST(b)?(cout<<"Yes"):(cout<<"NO");
 
 }
 
@@ -317,7 +337,26 @@ int randomNum()
 		cout << randomVec[i] << endl;
 	return 0;
 }
+/*4、明明的随机数*/
+void randomMingming()
+{
+	int num;
+	cin >> num;
+	int count = 1;
+	int randomNum;
+	vector<int> randomVec;
+	while (count <= num &&cin >> randomNum)
+	{
+		assert(randomNum >= 1 && randomNum <= 1000);
+		randomVec.push_back(randomNum);
+		count++;
+	}
+	sort(randomVec.begin(), randomVec.end());
+	randomVec.erase(unique(randomVec.begin(), randomVec.end()), randomVec.end());
 
+	for (int i = 0; i<randomVec.size(); i++)
+		cout << randomVec[i] << endl;
+}
 /*	
 京东C++笔试
 1、疯狂序列
@@ -1151,4 +1190,101 @@ vector<int> PrintFromTopToBottom(TreeNode* root)
 		node.pop();
 	}
 	return res;
+}
+/*23、二叉搜索树的后续遍历序列
+题目描述
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果，如果是则输出yes，如果不是输出no
+假设输入的数组中任意两个数字都互不相同
+思路：
+后续遍历的最后一个节点为根节点 而根节点可以把后序遍历的序列分为两部分 一部分大于根节点 一部分小于根节点
+这两部分又可以继续根据最后一个节点分
+递归
+*/
+bool judge(vector<int>& a, int l, int r)
+{
+	if (l >= r) return true;//左右子树为空
+	int i = r;
+	//从后向前 找到左右子树的分界下标
+	while (i > l &&a[i - 1] > a[r])
+	{
+		--i;
+	}
+	//在分出来的前一部分 检查是否符合小于根节点要求
+	for (int j = i - 1; j >= l; --j)
+	{
+		if (a[j] > a[r])
+			return false;
+	}
+	//递归判断左右子树是否满足要求
+	return judge(a, l, i - 1) && (judge(a, i, r - 1));
+}
+bool VerifySequenceOfBST(vector<int> a)
+{
+	if (!a.size())return false;
+	return judge(a, 0, a.size() - 1);
+}
+/*24、二叉树中和为某一值的路径
+题目描述
+输入一颗二叉树和一个整数，打印出二叉树中结点值的和为输入整数的所有路径。
+路径定义为从树的跟结点开始往下一直到叶结点所经过的结点形成一条路径。
+*/
+vector<vector<int> > resAll;
+vector<int> res;
+vector<vector<int> > FindPath(TreeNode* root, int expectNumber)
+{
+	if (root == NULL)
+		return resAll;
+	res.push_back(root->val);//根节点的值入vector
+	expectNumber -= root->val;//期望和减去根节点的值
+	if (expectNumber == 0 && root->left == NULL && root->right == NULL)
+	{
+		resAll.push_back(res);//访问到了叶结点，并且期望和已经为0
+	}
+	FindPath(root->left, expectNumber);//从左右子树找
+	FindPath(root->right, expectNumber);
+	///////切记不可少
+	res.pop_back();//深度遍历到了叶节点之后 要将叶节点推出来回溯
+
+	return resAll;
+}
+/*25、复杂链表的复制
+问题描述：
+输入一个复杂链表(每个节点中有节点值，以及两个指针，一个指向下一个节点，另一个特殊的指针指向任意一个节点)
+返回结果为复制后复杂链表的head（注意：输出结果中请不要返回参数中的节点引用，否则判题程序会直接返回空）
+*/
+RandomListNode* Clone(RandomListNode* pHead)
+{
+	if (!pHead)
+		return NULL;
+	RandomListNode* currNode = pHead;
+	while (currNode)
+	{
+		RandomListNode* node = new RandomListNode(currNode->label);
+		node->next = currNode->next;
+		currNode->next = node;
+		currNode = node->next;
+	}
+	currNode = pHead;
+	while (currNode)
+	{
+		RandomListNode* node = currNode->next;
+		if (currNode->random)
+		{
+			//需要细细品
+			node->random = currNode->random->next;
+		}
+		currNode = node->next;
+	}
+
+	//拆分
+	RandomListNode* pCloneHead = pHead->next;
+	RandomListNode* tmp;
+	currNode = pHead;
+	while (currNode->next)
+	{
+		tmp = currNode->next;
+		currNode->next = tmp->next;
+		currNode = tmp;
+	}
+	return pCloneHead;
 }
